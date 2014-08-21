@@ -1,3 +1,3 @@
-用AVOS Cloud 的Javascript SDK做的Todo List
+# 用 AVOS Cloud Javascript SDK 實現的 TodoMVC
 
 Cloud code project for Todo. https://cn.avoscloud.com/docs/cloud_code_guide.html
