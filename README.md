@@ -1,6 +1,6 @@
 # 用 AVOS Cloud Javascript SDK 实现的 TodoMVC
 
-### http://todolist.avosapps.com/  ,参考了 [JS SDK](https://cn.avoscloud.com/docs/js_guide.html)
+### http://todolist.avosapps.com/  ，参考了 [JS SDK](https://cn.avoscloud.com/docs/js_guide.html)
 
 ## 管理 Todos 
 ![img](https://github.com/avoscloud/todo/blob/master/readme/todo.png)
