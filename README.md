@@ -7,6 +7,8 @@ http://todolist.avosapps.com/  ,参考 [JS SDK](https://cn.avoscloud.com/docs/js
 
 ![img](https://github.com/avoscloud/todo/blob/master/readme/todo.png)
 
+![img](https://github.com/avoscloud/todo/blob/master/readme/login.png)
+
 
 ##安装
 
