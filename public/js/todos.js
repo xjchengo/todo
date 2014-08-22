@@ -7,13 +7,13 @@ $(function() {
 
   AV.$ = jQuery;
 
-  // Initialize AV with your AV application javascript keys
+  //用config.js中的appId，appKey初始化，若你搭建自己的Todo，请用你的appId与appKey
   AV.initialize(appId, appKey);
 
   // Todo Model
   // ----------
 
-  // Our basic Todo model has `content`, `order`, and `done` attributes.
+  // 我们的 Todo 模型有 `content`, `order`, and `done`属性
   var Todo = AV.Object.extend("Todo", {
     // Default attributes for the todo.
     defaults: {
@@ -21,20 +21,20 @@ $(function() {
       done: false
     },
 
-    // Ensure that each todo created has `content`.
+    // 确保每个Todo都有`content`
     initialize: function() {
       if (!this.get("content")) {
         this.set({"content": this.defaults.content});
       }
     },
 
-    // Toggle the `done` state of this todo item.
+    // 切换 `done`状态
     toggle: function() {
       this.save({done: !this.get("done")});
     }
   });
 
-  // This is the transient application state, not persisted on AV
+    // 这个是暂态的状态，并没有保存在AV的数据库中
   var AppState = AV.Object.extend("AppState", {
     defaults: {
       filter: "all"
@@ -46,27 +46,26 @@ $(function() {
 
   var TodoList = AV.Collection.extend({
 
-    // Reference to this collection's model.
+    //引用 这个集合的model
     model: Todo,
 
-    // Filter down the list of all todo items that are finished.
+    //过滤出所有完成的Todo
     done: function() {
       return this.filter(function(todo){ return todo.get('done'); });
     },
 
-    // Filter down the list to only todo items that are still not finished.
+    //过滤出所有没有完成的Todo
     remaining: function() {
       return this.without.apply(this, this.done());
     },
 
-    // We keep the Todos in sequential order, despite being saved by unordered
-    // GUID in the database. This generates the next order number for new items.
+    //我们让Todos保持一定的顺序，尽管保存在数据库的objectId是无序、全局唯一的。下面的函数产生了下一个序号
     nextOrder: function() {
       if (!this.length) return 1;
       return this.last().get('order') + 1;
     },
 
-    // Todos are sorted by their original insertion order.
+    //Todos会根据它们的`order`值来排序
     comparator: function(todo) {
       return todo.get('order');
     }
@@ -76,16 +75,16 @@ $(function() {
   // Todo Item View
   // --------------
 
-  // The DOM element for a todo item...
+  // 一个Todo的 DOM 元素节点
   var TodoView = AV.View.extend({
 
-    //... is a list tag.
+    //是一个list 的tag
     tagName:  "li",
 
-    // Cache the template function for a single item.
+    //加载index.html的节点 #item-template ，作为模板，为后续填充数据作准备
     template: _.template($('#item-template').html()),
 
-    // The DOM events specific to an item.
+    // 一个列表项特定的 DOM 事件
     events: {
       "click .toggle"              : "toggleDone",
       "dblclick label.todo-content" : "edit",
@@ -103,36 +102,36 @@ $(function() {
       this.model.bind('destroy', this.remove);
     },
 
-    // Re-render the contents of the todo item.
+    // 渲染一个 todo 项
     render: function() {
       $(this.el).html(this.template(this.model.toJSON()));
       this.input = this.$('.edit');
       return this;
     },
 
-    // Toggle the `"done"` state of the model.
+    //切换 model的 `done` 状态
     toggleDone: function() {
       this.model.toggle();
     },
 
-    // Switch this view into `"editing"` mode, displaying the input field.
+    // 切换这个view为编辑模式，显示输入框
     edit: function() {
       $(this.el).addClass("editing");
       this.input.focus();
     },
 
-    // Close the `"editing"` mode, saving changes to the todo.
+    // 关闭编辑模式，保存内容到 todo 中
     close: function() {
       this.model.save({content: this.input.val()});
       $(this.el).removeClass("editing");
     },
 
-    // If you hit `enter`, we're through editing the item.
+    // 如果敲了回车键，将退出编辑模式
     updateOnEnter: function(e) {
       if (e.keyCode == 13) this.close();
     },
 
-    // Remove the item, destroy the model.
+    // 删除一个 列表项 ，同时删除 todo model
     clear: function() {
       this.model.destroy();
     }
@@ -142,13 +141,13 @@ $(function() {
   // The Application
   // ---------------
 
-  // The main view that lets a user manage their todo items
+  // 给用户编辑 todo 主体视图
   var ManageTodosView = AV.View.extend({
 
-    // Our template for the line of statistics at the bottom of the app.
+    // 底部的统计数据展现所用到的模板
     statsTemplate: _.template($('#stats-template').html()),
 
-    // Delegated events for creating new items, and clearing completed ones.
+    // 创建新的 todo 或者清空已完成的那些，所需要触发的事件
     events: {
       "keypress #new-todo":  "createOnEnter",
       "click #clear-completed": "clearCompleted",
@@ -159,24 +158,24 @@ $(function() {
 
     el: ".content",
 
-    // At initialization we bind to the relevant events on the `Todos`
-    // collection, when items are added or changed. Kick things off by
-    // loading any preexisting todos that might be saved to AV.
+    // 初始化的时候我们把跟 Todos 集合 相关的函数绑定到这个view上，同时加载
+    // 这个用户的Todos
+
     initialize: function() {
       var self = this;
 
       _.bindAll(this, 'addOne', 'addAll', 'addSome', 'render', 'toggleAllComplete', 'logOut', 'createOnEnter');
 
-      // Main todo management template
+      // 主体管理 todo 的html模板
       this.$el.html(_.template($("#manage-todos-template").html()));
       
       this.input = this.$("#new-todo");
       this.allCheckbox = this.$("#toggle-all")[0];
 
-      // Create our collection of Todos
+      // 创建我们的 Todos 集合
       this.todos = new TodoList;
 
-      // Setup the query for the collection to look for todos from the current user
+      // 创建 query ，来查询该用户的 todos
       this.todos.query = new AV.Query(Todo);
       this.todos.query.equalTo("user", AV.User.current());
         
@@ -184,13 +183,13 @@ $(function() {
       this.todos.bind('reset',   this.addAll);
       this.todos.bind('all',     this.render);
 
-      // Fetch all the todo items for this user
+      // 获取该用户的所有 todo项
       this.todos.fetch();
 
       state.on("change", this.filter, this);
     },
 
-    // Logs out the user and shows the login view
+    // 注销，然后显示登录注册 视图
     logOut: function(e) {
       AV.User.logOut();
       new LogInView();
@@ -198,8 +197,7 @@ $(function() {
       delete this;
     },
 
-    // Re-rendering the App just means refreshing the statistics -- the rest
-    // of the app doesn't change.
+    // 每一次 todo 列表有变化时，意味着底部的统计视图也要跟随着改变
     render: function() {
       var done = this.todos.done().length;
       var remaining = this.todos.remaining().length;
@@ -215,7 +213,7 @@ $(function() {
       this.allCheckbox.checked = !remaining;
     },
 
-    // Filters the list based on which type of filter is selected
+    // 根据 filter的类型来过滤出相应的todos
     selectFilter: function(e) {
       var el = $(e.target);
       var filterValue = el.attr("id");
@@ -236,34 +234,34 @@ $(function() {
       }
     },
 
-    // Resets the filters to display all todos
+    // 清空 filter的效果，并且显示 所有的todo项
     resetFilters: function() {
       this.$("ul#filters a").removeClass("selected");
       this.$("ul#filters a#all").addClass("selected");
       this.addAll();
     },
 
-    // Add a single todo item to the list by creating a view for it, and
-    // appending its element to the `<ul>`.
+    // 加载一个 todo项到列表中，把它加到 todo-list ul 元素里面
     addOne: function(todo) {
       var view = new TodoView({model: todo});
       this.$("#todo-list").append(view.render().el);
     },
 
-    // Add all items in the Todos collection at once.
+    // 加载 collection中的的 todos 项
     addAll: function(collection, filter) {
       this.$("#todo-list").html("");
       this.todos.each(this.addOne);
     },
 
-    // Only adds some todos, based on a filtering function that is passed in
+    // 加载部分的todo项，根据 filter
     addSome: function(filter) {
       var self = this;
       this.$("#todo-list").html("");
       this.todos.chain().filter(filter).each(function(item) { self.addOne(item) });
     },
 
-    // If you hit return in the main input field, create new Todo model
+
+    // 如果在 输入框 敲入回车键 ， 创建新的 Todo项
     createOnEnter: function(e) {
       var self = this;
       if (e.keyCode != 13) return;
@@ -280,7 +278,7 @@ $(function() {
       this.resetFilters();
     },
 
-    // Clear all done todo items, destroying their models.
+    // 清空所有完成的todo
     clearCompleted: function() {
       _.each(this.todos.done(), function(todo){ todo.destroy(); });
       return false;
@@ -309,7 +307,8 @@ $(function() {
       var self = this;
       var username = this.$("#login-username").val();
       var password = this.$("#login-password").val();
-      
+
+      // 登录
       AV.User.logIn(username, password, {
         success: function(user) {
           new ManageTodosView();
@@ -332,7 +331,8 @@ $(function() {
       var self = this;
       var username = this.$("#signup-username").val();
       var password = this.$("#signup-password").val();
-      
+
+      // 注册
       AV.User.signUp(username, password, { ACL: new AV.ACL() }, {
         success: function(user) {
           new ManageTodosView();
@@ -357,10 +357,10 @@ $(function() {
     }
   });
 
-  // The main view for the app
+  // 程序的主体视图，控制 管理todos的视图和 登录试图
   var AppView = AV.View.extend({
-    // Instead of generating a new element, bind to the existing skeleton of
-    // the App already present in the HTML.
+
+    //  跟已经在html里的节点绑定起来，而不是再生成一个元素节点
     el: $("#todoapp"),
 
     initialize: function() {
