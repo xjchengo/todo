@@ -1,6 +1,6 @@
 # 用 AVOS Cloud Javascript SDK 实现的 TodoMVC
 
-### http://todolist.avosapps.com/  ，参考了 [JS SDK](https://cn.avoscloud.com/docs/js_guide.html)
+[todolist.avosapps.com](http://todolist.avosapps.com/)，参考了 [JS SDK](https://cn.avoscloud.com/docs/js_guide.html)
 
 ## 管理 Todos 
 ![img](https://github.com/avoscloud/todo/blob/master/readme/todo.png)
@@ -17,15 +17,15 @@
 
 ##安装
 
-需要[云代码命令行工具](https://blog.avoscloud.com/591/)，还可参考[AVOS Cloud 本地调试云代码](https://blog.avoscloud.com/561/)
+需要 [云代码命令行工具](https://blog.avoscloud.com/591/)，还可参考 [AVOS Cloud 本地调试云代码](https://blog.avoscloud.com/561/)
 
 ## TodoMVC
 
 - https://github.com/tastejs/todomvc
 
 ## 通过 ACL 权限控制来保护数据
-客户端的appId、appKey暴露了，看起来有心之人可以获取应用的所有数据，其实通过ACL管理可以避免这一点。
-比如 todo 项，用户创建了 todo 项，良好的 ACL管理在这个例子就是这个todo只能被这个用户读取和写入，
+客户端的 appId、appKey 暴露了，看起来有心之人可以获取应用的所有数据，其实通过 ACL 管理可以避免这一点。
+比如 todo 项，用户创建了 todo 项，良好的 ACL 管理在这个例子就是这个 todo 只能被这个用户读取和写入。
 
 ```
  todo.set('ACL',new AV.ACL(AV.User.current()));
@@ -33,6 +33,4 @@
 
 所以当这个用户没有登录的时候，是不能读取这条数据的。用户的密码又是加密的。客户端无法获取。所以这时候读取和修改这条数据，要么是这个用户登录修改，要么是在管理台中。
 
-另外，_User默认的ACL控制是 `read:all, write:currentUser()`。也即所有情况下都可以读取的，但写入的话只能是这个用户。当这个用户没有登录的时候，尝试修改这个用户的数据会报异常。
-
-
+另外，`_User` 默认的 ACL 控制是 `read:all, write:currentUser()`。也即所有情况下都可以读取的，但写入的话只能是这个用户。当这个用户没有登录的时候，尝试修改这个用户的数据会报异常。
