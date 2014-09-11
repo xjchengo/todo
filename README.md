@@ -2,6 +2,8 @@
 
 [todolist.avosapps.com](http://todolist.avosapps.com/)，参考了 [JS SDK](https://cn.avoscloud.com/docs/js_guide.html)
 
+[AVOS Cloud 站点下载地址](https://download.avoscloud.com/demo/)
+
 ## 管理 Todos 
 ![img](https://github.com/avoscloud/todo/blob/master/readme/todo.png)
 
