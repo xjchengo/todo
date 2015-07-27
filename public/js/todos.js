@@ -164,7 +164,7 @@ $(function() {
     initialize: function() {
       var self = this;
 
-      _.bindAll(this, 'addOne', 'addAll', 'addSome', 'render', 'toggleAllComplete', 'logOut', 'createOnEnter');
+      _.bindAll(this, 'addOne', 'addAll', 'addSome', 'render', 'toggleAllComplete', 'logOut', 'createOnEnter', 'filter');
 
       // 主体管理 todo 的html模板
       this.$el.html(_.template($("#manage-todos-template").html()));
@@ -182,6 +182,7 @@ $(function() {
       this.todos.bind('add',     this.addOne);
       this.todos.bind('reset',   this.addAll);
       this.todos.bind('all',     this.render);
+      this.todos.bind('all',     this.filter);
 
       // 获取该用户的所有 todo项
       this.todos.fetch();
